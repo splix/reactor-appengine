@@ -1,0 +1,58 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'idea'
+
+
+group = 'com.the6hours'
+version = '1.0-SNAPSHOT'
+
+description = "Spring Reactor for Google Appengine"
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+def versions = [
+    gae: '1.8.0',
+    spring: '3.2.3.RELEASE',
+    spock: '0.7-groovy-2.0',
+    reactor: '1.0.0.BUILD-SNAPSHOT'
+]
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    mavenRepo name: "Gradle", url: "http://repo.gradle.org/gradle/repo"
+    mavenRepo url: "http://maven-gae-plugin.googlecode.com/svn/repository"
+    mavenRepo url: "http://objectify-appengine.googlecode.com/svn/maven"
+    mavenRepo url: "http://repo1.maven.org/maven2"
+    mavenRepo url: "https://oss.sonatype.org/service/local/repositories/springsource-milestones/content"
+    mavenRepo url: "http://maven.the6hours.com/release"
+    mavenRepo url: "http://repo.maven.apache.org/maven2"
+}
+
+configurations {
+    all*.exclude group: 'com.github.stephenc.high-scale-lib'
+}
+
+dependencies {
+    compile(group: 'org.projectreactor', name: 'reactor-core', version:versions.reactor)
+    compile(group: 'org.projectreactor', name: 'reactor-spring', version:versions.reactor)
+
+    compile(group: 'org.springframework', name: 'spring-webmvc', version:versions.spring)
+    compile(group: 'org.springframework', name: 'spring-core', version:versions.spring)
+    compile(group: 'org.springframework', name: 'spring-tx', version:versions.spring)
+    compile(group: 'org.springframework', name: 'spring-context', version:versions.spring)
+    compile(group: 'org.springframework', name: 'spring-test', version:versions.spring)
+    compile(group: 'org.springframework', name: 'spring-beans', version:versions.spring)
+
+    compile group: 'com.google.appengine', name: 'appengine-api-1.0-sdk', version: versions.gae
+    compile group: 'com.google.appengine', name: 'appengine-api-labs', version: versions.gae
+    compile group: 'org.apache.geronimo.specs', name: 'geronimo-j2ee_1.4_spec', version: '1.0'
+
+    testCompile group: 'com.google.appengine', name: 'appengine-api-stubs', version: versions.gae
+    testCompile group: 'com.google.appengine', name: 'appengine-testing', version: versions.gae
+    testCompile(group: 'org.spockframework', name: 'spock-core', version: versions.spock)
+    testCompile(group: 'org.spockframework', name: 'spock-spring', version: versions.spock)
+    testCompile(group: 'com.the6hours', name: 'spock-appengine', version: '0.1')
+}
+
