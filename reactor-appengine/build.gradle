@@ -15,12 +15,12 @@ def versions = [
     gae: '1.8.0',
     spring: '3.2.3.RELEASE',
     spock: '0.7-groovy-2.0',
-    reactor: '1.0.0.BUILD-SNAPSHOT'
+    reactor: '1.0.0.RELEASE'
 ]
 
 repositories {
-    mavenCentral()
     mavenLocal()
+    mavenCentral()
     mavenRepo name: "Gradle", url: "http://repo.gradle.org/gradle/repo"
     mavenRepo url: "http://maven-gae-plugin.googlecode.com/svn/repository"
     mavenRepo url: "http://objectify-appengine.googlecode.com/svn/maven"
@@ -35,8 +35,10 @@ configurations {
 }
 
 dependencies {
-    compile(group: 'org.projectreactor', name: 'reactor-core', version:versions.reactor)
-    compile(group: 'org.projectreactor', name: 'reactor-spring', version:versions.reactor)
+    compile(group: 'org.projectreactor', name: 'reactor-core', version:versions.reactor + '.GAE')
+    compile(group: 'org.projectreactor', name: 'reactor-spring', version:versions.reactor) {
+        exclude group: 'org.projectreactor'
+    }
 
     compile(group: 'org.springframework', name: 'spring-webmvc', version:versions.spring)
     compile(group: 'org.springframework', name: 'spring-core', version:versions.spring)

@@ -16,15 +16,22 @@ class SimpleProcess {
 
     private static final Logger log = LoggerFactory.getLogger(this)
 
+    Random random = new Random()
+
     @Selector(value="simple", reactor="@reactor")
     public void handle(Event event) {
         log.info("Received event 'simple'")
         Thread curr = Thread.currentThread()
         String msg = [
                 "Data: $event.data",
+                "Id $event.id",
                 "Thread: ${curr.id} ${curr.name}",
                 "Headers: " + event.headers.asMap()
         ].join('\n')
         log.info("Details: $msg")
+        if (random.nextInt(4) == 1) {
+            log.warn("Bad luck: $event.id")
+            throw new RuntimeException('Like something bad happened')
+        }
     }
 }

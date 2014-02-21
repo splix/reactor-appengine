@@ -15,7 +15,7 @@ import java.util.List;
 public class GaeEnvironment extends Environment {
 
     public GaeEnvironment() {
-        super(Collections.<String, List<Dispatcher>>emptyMap(), new PropertiesConfigurationReader(), null);
+        super(Collections.<String, List<Dispatcher>>emptyMap(), new PropertiesConfigurationReader());
     }
 
 }

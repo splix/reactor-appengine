@@ -32,7 +32,7 @@ class SimpleRun {
     @ResponseBody
     String runQueue() {
         log.info("Send events to Queue Reactor")
-        (1..10).each {
+        (1..20).each {
             queueReactor.notify("simple", Event.wrap("test $it"))
         }
         log.info("Sent to Queue Reactor")
@@ -43,7 +43,7 @@ class SimpleRun {
     @ResponseBody
     String runLocal() {
         log.info("Send events to Local Reactor")
-        (1..10).each {
+        (1..20).each {
             localReactor.notify("simple", Event.wrap("test $it"))
         }
         log.info("Sent to Local Reactor")

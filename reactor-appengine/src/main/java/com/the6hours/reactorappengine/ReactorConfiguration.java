@@ -6,9 +6,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import reactor.core.Environment;
 import reactor.core.Reactor;
+import reactor.core.configuration.PropertiesConfigurationReader;
 import reactor.core.spec.ReactorSpec;
 import reactor.core.spec.Reactors;
-import reactor.spring.beans.factory.config.ConsumerBeanAutoConfiguration;
+import reactor.event.dispatch.Dispatcher;
+import reactor.spring.factory.config.ConsumerBeanAutoConfiguration;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Since 25.07.13
@@ -32,19 +37,19 @@ public class ReactorConfiguration {
         return spec.get();
     }
 
-    @Bean(name = {"localReactor", "reactor"})
+    @Bean(name = {"localReactor", "reactor", "serialReactor"})
     public Reactor localReactor() {
         Environment env = getEnvironment();
         ReactorSpec spec = Reactors.reactor().env(env);
-        spec = spec.dispatcher(DISPATCHER_GAE_EXECUTOR);
+        spec = spec.synchronousDispatcher(); //dispatcher(DISPATCHER_GAE_EXECUTOR);
         return spec.get();
     }
 
     @Bean(name = "reactorEnv")
-    public GaeEnvironment getEnvironment() {
+    public Environment getEnvironment() {
         log.info("Initialize GaeEnvironment");
         System.setProperty("reactor.profiles.default", "appengine");
-        GaeEnvironment environment = new GaeEnvironment();
+        Environment environment = new Environment(Collections.<String, List<Dispatcher>>emptyMap(), new PropertiesConfigurationReader());
         environment.addDispatcher(DISPATCHER_GAE_QUEUE, new QueueEventLoopDispatcher());
         environment.addDispatcher(DISPATCHER_GAE_EXECUTOR, new CurrentRequestDispatcher());
         return environment;

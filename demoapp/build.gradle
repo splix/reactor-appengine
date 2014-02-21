@@ -17,7 +17,7 @@ def versions = [
         gae: '1.8.4',
         spring: '3.2.3.RELEASE',
         spock: '0.7-groovy-2.0',
-        reactor: '1.0.0.BUILD-SNAPSHOT'
+        reactor: '1.0.0.RELEASE'
 ]
 
 buildscript {
@@ -49,10 +49,17 @@ configurations {
 dependencies {
     compile(group: 'org.codehaus.groovy', name:'groovy-all', version: '2.0.5')
 
-    compile(group: 'org.projectreactor', name: 'reactor-core', version:versions.reactor)
-    compile(group: 'org.projectreactor', name: 'reactor-spring', version:versions.reactor)
+    compile(group: 'org.projectreactor', name: 'reactor-core', version:versions.reactor + '.GAE')
 
-    compile(group: 'com.the6hours', name: 'reactor-appengine', version: '1.0-SNAPSHOT')
+/*
+    compile(group: 'org.projectreactor', name: 'reactor-spring', version:versions.reactor) {
+        exclude group: 'org.projectreactor'
+    }
+*/
+
+    compile(group: 'com.the6hours', name: 'reactor-appengine', version: '1.0-SNAPSHOT') {
+        exclude group:'org.projectreactor', module: 'reactor-core'
+    }
 
     compile(group: 'org.springframework', name: 'spring-webmvc', version:versions.spring)
     compile(group: 'org.springframework', name: 'spring-core', version:versions.spring)
