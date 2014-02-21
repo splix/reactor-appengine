@@ -19,7 +19,7 @@ public class CurrentRequestExecutorService extends AbstractExecutorService {
     private static final Logger log = LoggerFactory.getLogger(CurrentRequestExecutorService.class);
 
     private static ThreadLocal<ExecutorService> executors = new ThreadLocal<ExecutorService>();
-    private int size = 4;
+    private static final int size = 8;
 
     private static final CurrentRequestExecutorService instance = new CurrentRequestExecutorService();
 

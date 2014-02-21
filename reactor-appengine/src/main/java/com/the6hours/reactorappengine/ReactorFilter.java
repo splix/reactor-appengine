@@ -24,9 +24,6 @@ public class ReactorFilter extends OncePerRequestFilter implements Filter {
 
     private static final Logger log = LoggerFactory.getLogger(ReactorFilter.class);
 
-    @Autowired(required = false)
-    private GaeEnvironment environment;
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {

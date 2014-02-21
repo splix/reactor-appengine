@@ -11,53 +11,53 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Igor Artamonov, http://igorartamonov.com
  */
-public class CurrentRequestDispatcher  extends BaseLifecycleDispatcher {
+public class CurrentRequestDispatcher extends BaseLifecycleDispatcher {
 
     private final ExecutorService executor;
 
-   	public CurrentRequestDispatcher() {
+    public CurrentRequestDispatcher() {
         this.executor = CurrentRequestExecutorService.getInstance();
-   	}
+    }
 
-   	@Override
-   	public boolean awaitAndShutdown(long timeout, TimeUnit timeUnit) {
-   		shutdown();
-   		try {
-   			return executor.awaitTermination(2, TimeUnit.SECONDS);
-   		} catch (InterruptedException e) {
-   			Thread.currentThread().interrupt();
-   		}
-   		return false;
-   	}
+    @Override
+    public boolean awaitAndShutdown(long timeout, TimeUnit timeUnit) {
+        shutdown();
+        try {
+            return executor.awaitTermination(timeout, timeUnit);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        return false;
+    }
 
-   	@Override
-   	public void shutdown() {
-   		executor.shutdown();
-   		super.shutdown();
-   	}
+    @Override
+    public void shutdown() {
+        executor.shutdown();
+        super.shutdown();
+    }
 
-   	@Override
-   	public void halt() {
-   		executor.shutdownNow();
-   		super.halt();
-   	}
+    @Override
+    public void halt() {
+        executor.shutdownNow();
+        super.halt();
+    }
 
-   	@SuppressWarnings("unchecked")
-   	@Override
-   	protected <E extends Event<?>> Task<E> createTask() {
-   		return (Task<E>) new ThreadPoolTask();
-   	}
+    @SuppressWarnings("unchecked")
+    @Override
+    protected <E extends Event<?>> Task<E> createTask() {
+        return (Task<E>) new ThreadPoolTask();
+    }
 
-   	private class ThreadPoolTask extends Task<Event<Object>> implements Runnable {
-   		@Override
-   		public void submit() {
-   			executor.submit(this);
-   		}
+    private class ThreadPoolTask extends Task<Event<Object>> implements Runnable {
+        @Override
+        public void submit() {
+            executor.submit(this);
+        }
 
-   		@Override
-   		public void run() {
+        @Override
+        public void run() {
             execute();
-   		}
-   	}
+        }
+    }
 
 }
