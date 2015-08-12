@@ -33,14 +33,14 @@ public class ReactorFilter extends OncePerRequestFilter implements Filter {
             log.debug("Check Executor Service...");
             CurrentRequestExecutorService executorService = CurrentRequestExecutorService.getInstance();
             if (!executorService.isTerminated()) {
-                log.debug("Shutdown Executor Service...");
-                try {
-                    executorService.shutdown();
-                    executorService.awaitTermination(5, TimeUnit.SECONDS);
-                    log.debug("Executor Service Shutdown");
-                } catch (InterruptedException e) {
-                    log.error("Current Request ExecutorService termination was interrupted", e);
-                }
+                log.debug("Executor Service is running...");
+//                try {
+//                    executorService.shutdown();
+//                    executorService.awaitTermination(5, TimeUnit.SECONDS);
+//                    log.debug("Executor Service Shutdown");
+//                } catch (InterruptedException e) {
+//                    log.error("Current Request ExecutorService termination was interrupted", e);
+//                }
             }
         }
     }

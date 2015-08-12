@@ -1,8 +1,8 @@
 package com.the6hours.reactorappengine;
 
-import reactor.core.Environment;
-import reactor.core.configuration.PropertiesConfigurationReader;
-import reactor.event.dispatch.Dispatcher;
+import reactor.Environment;
+import reactor.core.config.PropertiesConfigurationReader;
+import reactor.core.Dispatcher;
 
 import java.util.Collections;
 import java.util.List;
@@ -15,7 +15,7 @@ import java.util.List;
 public class GaeEnvironment extends Environment {
 
     public GaeEnvironment() {
-        super(Collections.<String, List<Dispatcher>>emptyMap(), new PropertiesConfigurationReader());
+        super(Collections.<String, Dispatcher>emptyMap(), new PropertiesConfigurationReader());
     }
 
 }

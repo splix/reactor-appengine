@@ -11,13 +11,13 @@ Details
 -------
 
 Allows you to use [Reactor Framework](https://github.com/reactor/reactor)
-inside [GAE](https://developers.google.com/appengine/docs/java/) application.
+inside [GAE](https://developers.google.com/appengine/docs/java/) application. Current supported version of Reactor is 2.0.4.RELEASE
 
 
-Have two types of Dispatchers:
+Have two types of EventBus:
 
- * local - uses GAE ThreadManger for Current Request, for quick tasks that should be executed during current request
- * queue - process events in GAE Queue
+ * local - uses Appengine ThreadManger for Current Request, for tasks that should be executed during current request
+ * queue - process events in another request, thourgh Appengine Queue
 
 Demo App
 --------
@@ -76,20 +76,20 @@ For local execution (current request):
 
 ```
 @Autowired
-@Qualifier('localReactor')
-Reactor localReactor
+@Qualifier('eventBusLocal')
+EventBus localBus;
 
-localReactor.notify("test", Event.wrap("test"))
+localBus.notify("test", Event.wrap("test"));
 ```
 
 For execution as a Queue Task:
 
 ```
 @Autowired
-@Qualifier('queueReactor')
-Reactor queueReactor
+@Qualifier('eventBusQueue')
+EventBus queueBus;
 
-queueReactor.notify("test", Event.wrap("test"))
+queueBus.notify("test", Event.wrap("test"));
 ```
 
 Roadmap
@@ -97,7 +97,6 @@ Roadmap
 
  * make it usable from non-Spring applications
  * special dispatcher for GAE Pull Queue
- * special dispatcher for GAE Backend modules
 
 License
 -------

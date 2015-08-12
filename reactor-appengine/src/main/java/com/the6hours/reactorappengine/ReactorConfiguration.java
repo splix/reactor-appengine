@@ -4,19 +4,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import reactor.core.Environment;
-import reactor.core.Reactor;
-import reactor.core.configuration.PropertiesConfigurationReader;
-import reactor.core.spec.ReactorSpec;
-import reactor.core.spec.Reactors;
-import reactor.event.dispatch.Dispatcher;
-import reactor.spring.factory.config.ConsumerBeanAutoConfiguration;
+import reactor.Environment;
+import reactor.bus.Event;
+import reactor.bus.EventBus;
+import reactor.bus.registry.Registry;
+import reactor.bus.spec.EventBusSpec;
+import reactor.core.Dispatcher;
+import reactor.core.config.PropertiesConfigurationReader;
+import reactor.fn.Consumer;
+import reactor.spring.context.config.ConsumerBeanAutoConfiguration;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Since 25.07.13
  *
  * @author Igor Artamonov, http://igorartamonov.com
  */
@@ -29,30 +30,37 @@ public class ReactorConfiguration {
     public static final String DISPATCHER_GAE_QUEUE = "gaeQueue";
     public static final String DISPATCHER_GAE_EXECUTOR = "gaeRequestThreadPool";
 
-    @Bean(name = "queueReactor")
-    public Reactor queueReactor() {
-        Environment env = getEnvironment();
-        ReactorSpec spec = Reactors.reactor().env(env);
-        spec = spec.dispatcher(DISPATCHER_GAE_QUEUE);
-        return spec.get();
+    @Bean(name = "eventBusQueue")
+    public EventBus queueBus() {
+        return new EventBusSpec()
+                .env(getEnvironment())
+                .dispatcher(DISPATCHER_GAE_QUEUE)
+                .consumerRegistry(getRegistry())
+                .get();
     }
 
-    @Bean(name = {"localReactor", "reactor", "serialReactor"})
-    public Reactor localReactor() {
-        Environment env = getEnvironment();
-        ReactorSpec spec = Reactors.reactor().env(env);
-        spec = spec.synchronousDispatcher(); //dispatcher(DISPATCHER_GAE_EXECUTOR);
-        return spec.get();
+    @Bean(name = {"eventBus", "eventBusLocal"})
+    public EventBus localBus() {
+        return new EventBusSpec()
+                .env(getEnvironment())
+                .dispatcher(DISPATCHER_GAE_EXECUTOR)
+                .consumerRegistry(getRegistry())
+                .get();
     }
 
     @Bean(name = "reactorEnv")
     public Environment getEnvironment() {
         log.info("Initialize GaeEnvironment");
         System.setProperty("reactor.profiles.default", "appengine");
-        Environment environment = new Environment(Collections.<String, List<Dispatcher>>emptyMap(), new PropertiesConfigurationReader());
-        environment.addDispatcher(DISPATCHER_GAE_QUEUE, new QueueEventLoopDispatcher());
-        environment.addDispatcher(DISPATCHER_GAE_EXECUTOR, new CurrentRequestDispatcher());
-        return environment;
+        Map<String, Dispatcher> dispatchers = new HashMap<String, Dispatcher>(2);
+        dispatchers.put(DISPATCHER_GAE_QUEUE, new QueueEventLoopDispatcher());
+        dispatchers.put(DISPATCHER_GAE_EXECUTOR, new CurrentRequestDispatcher());
+        return new Environment(dispatchers, new PropertiesConfigurationReader());
+    }
+
+    @Bean
+    Registry<Object, Consumer<? extends Event<?>>> getRegistry() {
+        return new GaeRegistry<Object, Consumer<? extends Event<?>>>(true, false, null);
     }
 
     @Bean

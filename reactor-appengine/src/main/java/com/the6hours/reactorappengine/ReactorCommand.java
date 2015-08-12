@@ -1,13 +1,12 @@
 package com.the6hours.reactorappengine;
 
-import reactor.event.Event;
+import reactor.bus.Event;
 
 import java.io.Serializable;
 
 /**
-* Since 25.07.13
 *
-* @author Igor Artamonov, http://igorartamonov.com
+* @author Igor Artamonov
 */
 class ReactorCommand implements Serializable {
 

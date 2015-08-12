@@ -3,8 +3,8 @@ package com.the6hours.reactorappengine.demo
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
-import reactor.event.Event
-import reactor.spring.annotation.Selector
+import reactor.bus.Event
+import reactor.spring.context.annotation.Selector
 
 /**
  *
@@ -18,7 +18,7 @@ class SimpleProcess {
 
     Random random = new Random()
 
-    @Selector(value="simple", reactor="@reactor")
+    @Selector(value="simple", eventBus="@eventBus")
     public void handle(Event event) {
         log.info("Received event 'simple'")
         Thread curr = Thread.currentThread()

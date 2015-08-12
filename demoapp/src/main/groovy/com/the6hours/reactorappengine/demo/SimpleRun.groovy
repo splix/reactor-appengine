@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseBody
-import reactor.core.Reactor
-import reactor.event.Event
+import reactor.bus.Event
+import reactor.bus.EventBus
 
 /**
  *
@@ -21,19 +21,19 @@ class SimpleRun {
     private static final Logger log = LoggerFactory.getLogger(this)
 
     @Autowired
-    @Qualifier('queueReactor')
-    Reactor queueReactor
+    @Qualifier('eventBusQueue')
+    EventBus eventBusQueue
 
     @Autowired
-    @Qualifier('localReactor')
-    Reactor localReactor
+    @Qualifier('eventBusLocal')
+    EventBus eventBusLocal
 
     @RequestMapping("/simple/queue")
     @ResponseBody
     String runQueue() {
         log.info("Send events to Queue Reactor")
         (1..20).each {
-            queueReactor.notify("simple", Event.wrap("test $it"))
+            eventBusQueue.notify("simple", Event.wrap("test $it"))
         }
         log.info("Sent to Queue Reactor")
         return "Sent"
@@ -44,7 +44,7 @@ class SimpleRun {
     String runLocal() {
         log.info("Send events to Local Reactor")
         (1..20).each {
-            localReactor.notify("simple", Event.wrap("test $it"))
+            eventBusLocal.notify("simple", Event.wrap("test $it"))
         }
         log.info("Sent to Local Reactor")
         return "Processed"
