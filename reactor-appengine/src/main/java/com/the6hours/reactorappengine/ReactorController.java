@@ -63,6 +63,7 @@ public class ReactorController {
         };
 
         Event event = new Event<Object>(command.getHeaders(), command.getData(), onError);
+        event.setKey(command.getKey());
         log.debug("Executing event on local Reactor " + event.getId());
         dispatcher.dispatch(event, promise, onError);
 
