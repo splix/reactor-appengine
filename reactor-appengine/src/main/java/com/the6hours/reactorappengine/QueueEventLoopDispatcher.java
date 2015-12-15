@@ -100,18 +100,16 @@ public class QueueEventLoopDispatcher implements Dispatcher {
 
         Queue queue = QueueFactory.getDefaultQueue();
         try {
-            TaskHandle th = queue.add(TaskOptions.Builder.withUrl("/_ah/reactor")
-                            .payload(msgBytes)
-//                            .taskName(event.getId().toString())
+            queue.add(TaskOptions.Builder
+                    .withUrl("/_ah/reactor")
+                    .payload(msgBytes)
             );
         } catch (TaskAlreadyExistsException e) {
             log.debug("Already sent task");
         } catch (Throwable t) {
             log.error("Cannot send task");
             errorConsumer.accept(t);
-            return;
         }
-        eventConsumer.accept(event);
     }
 
     @Override
