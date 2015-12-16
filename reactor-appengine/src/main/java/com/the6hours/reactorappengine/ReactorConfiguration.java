@@ -67,8 +67,4 @@ public class ReactorConfiguration {
         return new GaeRegistry<Object, Consumer<? extends Event<?>>>(true, false, null);
     }
 
-    @Bean
-    public ConsumerBeanAutoConfiguration consumerBeanAutoConfiguration() {
-        return new ConsumerBeanAutoConfiguration();
-    }
 }
