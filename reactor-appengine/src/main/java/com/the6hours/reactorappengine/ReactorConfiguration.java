@@ -35,16 +35,16 @@ public class ReactorConfiguration {
         return new EventBusSpec()
                 .env(getEnvironment())
                 .dispatcher(DISPATCHER_GAE_QUEUE)
-                .consumerRegistry(getRegistry())
+                .consumerRegistry(getQueueRegistry())
                 .get();
     }
 
-    @Bean(name = {"eventBus", "eventBusLocal"})
+    @Bean(name = "eventBus")
     public EventBus localBus() {
         return new EventBusSpec()
                 .env(getEnvironment())
                 .dispatcher(DISPATCHER_GAE_EXECUTOR)
-                .consumerRegistry(getRegistry())
+                .consumerRegistry(getLocalRegistry())
                 .get();
     }
 
@@ -58,8 +58,12 @@ public class ReactorConfiguration {
         return new Environment(dispatchers, new PropertiesConfigurationReader());
     }
 
-    @Bean
-    Registry<Object, Consumer<? extends Event<?>>> getRegistry() {
+    @Bean(name = "registry")
+    Registry<Object, Consumer<? extends Event<?>>> getLocalRegistry() {
+        return new GaeRegistry<Object, Consumer<? extends Event<?>>>(true, false, null);
+    }
+    @Bean(name = "registryQueue")
+    Registry<Object, Consumer<? extends Event<?>>> getQueueRegistry() {
         return new GaeRegistry<Object, Consumer<? extends Event<?>>>(true, false, null);
     }
 
