@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import reactor.Environment;
+import reactor.bus.EventBus;
 import reactor.core.Dispatcher;
 import reactor.rx.Promise;
 import reactor.rx.Promises;
@@ -31,9 +32,15 @@ public class ReactorController {
 
     private static final Logger log = LoggerFactory.getLogger(ReactorController.class);
 
+    private static final long WAIT_TIME_SECONDS = 10 * 60 - 10; //little bit less than 10 minutes (a lifetime for a Queue request)
+
     @Autowired
     @Qualifier("reactorEnv")
     private Environment environment;
+
+    @Autowired
+    @Qualifier("eventBus")
+    private EventBus eventBus;
 
     @RequestMapping(value = "/_ah/reactor")
     @ResponseBody
@@ -58,24 +65,36 @@ public class ReactorController {
             @Override
             public void accept(Throwable t) {
                 failed[0] = true;
-                log.error("Error during execution: " + t.getMessage(), t);
+                log.error("Error during Event processing: " + t.getMessage(), t);
             }
         };
 
         Event event = new Event<Object>(command.getHeaders(), command.getData(), onError);
         event.setKey(command.getKey());
-        log.debug("Executing event on local Reactor " + event.getId());
-        dispatcher.dispatch(event, promise, onError);
+        if (log.isDebugEnabled()) {
+            log.debug("Executing event on local Reactor " + event.getId() + " for key " + command.getKey());
+        }
 
-        promise.await(10*60 - 10, TimeUnit.SECONDS); //little bit less than 10 minutes (a lifetime for a Queue request)
-//        log.info("Promise " + promise.isSuccess() + " for " + event.getId());
-//        log.info("Failed " + failed[0] + " for " + event.getId());
+        eventBus.getRouter().route(command.getKey(), event,
+                eventBus.getConsumerRegistry().select(command.getKey()),
+                promise, onError);
+
+        promise.await(WAIT_TIME_SECONDS, TimeUnit.SECONDS);
 
         HttpStatus status =  promise.isSuccess() && !failed[0] ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR;
         if (promise.isError() || failed[0]) {
-            log.warn("Failed to process current event. Return status 500 " + event.getId());
+            StringBuilder msg = new StringBuilder();
+            msg.append("Failed to process current event. Return status 500 ")
+                    .append(event.getId());
+            Throwable t = promise.reason();
+            if (t != null) {
+                msg.append(". Reason: ").append(t.getMessage());
+            }
+            log.warn(msg.toString());
         } else {
-            log.debug("Successfully finished processing of an event " + event.getId());
+            if (log.isDebugEnabled()) {
+                log.debug("Successfully finished processing of an event " + event.getId());
+            }
         }
 
         response.setStatus(status.value());
