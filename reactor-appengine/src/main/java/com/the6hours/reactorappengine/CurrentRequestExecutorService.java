@@ -19,7 +19,7 @@ public class CurrentRequestExecutorService extends AbstractExecutorService {
     private static final Logger log = LoggerFactory.getLogger(CurrentRequestExecutorService.class);
 
     private static ThreadLocal<ExecutorService> executors = new ThreadLocal<ExecutorService>();
-    private static final int size = 40;
+    private static final int MAXIMUM_POOL_SIZE = 40;
 
     private static final CurrentRequestExecutorService instance = new CurrentRequestExecutorService();
 
@@ -31,7 +31,10 @@ public class CurrentRequestExecutorService extends AbstractExecutorService {
         if (current == null) {
             log.debug("Init a new ExecutorService for current request");
             ThreadFactory threadFactory = ThreadManager.currentRequestThreadFactory();
-            current = Executors.newFixedThreadPool(size, threadFactory);
+            current = new ThreadPoolExecutor(0, MAXIMUM_POOL_SIZE,
+                    0L, TimeUnit.MILLISECONDS,
+                    new LinkedBlockingQueue<Runnable>(),
+                    threadFactory);
             executors.set(current);
         }
         return current;
